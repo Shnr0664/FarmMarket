@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -18,26 +17,31 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email' => 'required|email|unique:User',
+                'email' => 'required|email|unique:PersonalInfo,Email',
                 'password' => 'required|min:8',
-                'user_type' => 'required|in:buyer,farmer', 
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
+                'user_type' => 'required|in:buyer,farmer',
+                'name' => 'required|string|max:255',
+                'phone_number' => 'required|string|max:255',
+                'address' => 'required|string|max:255',
             ]);
-
+    
             $user = new User();
-            $user->Email = $request->email;
             $user->Password = $request->password;
             $user->save();
-
+    
             $user->personalInfo()->create([
-                'FirstName' => $request->first_name,
-                'LastName' => $request->last_name,
+                'Name' => $request->name,
+                'Email' => $request->email,
+                'PhoneNumber' => $request->phone_number,
+                'UserAddress' => $request->address,
             ]);
-
+    
             switch ($request->user_type) {
                 case 'buyer':
-                    $user->buyer()->create([]);
+                    $user->buyer()->create([
+                        'DeliveryPreference' => 'default',
+                        'BAddress' => $request->address,
+                    ]);
                     break;
                 case 'farmer':
                     $user->farmer()->create([]);
@@ -45,14 +49,13 @@ class AuthController extends Controller
                 default:
                     return $this->error('Invalid user type', 400);
             }
-
+    
             $token = $user->createToken('auth_token')->plainTextToken;
-
+    
             return $this->success([
                 'user' => $user->load('personalInfo'),
                 'token' => $token
             ], 'Registration successful', 201);
-
         } catch (ValidationException $e) {
             return $this->error($e->errors(), 422);
         } catch (\Exception $e) {
@@ -67,22 +70,28 @@ class AuthController extends Controller
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
-
-            $user = User::where('Email', $request->email)->first();
-
-            if (!$user || !Hash::check($request->password, $user->Password)) {
-                return $this->error('Invalid credentials', 401);
+    
+            $user = User::whereHas('personalInfo', function ($query) use ($request) {
+                $query->where('Email', $request->email);
+            })->first();
+    
+            if (!$user) {
+                return $this->error('User not found', 404);
             }
-
+            
+            $passwordMatches = Hash::check($request->password, $user->Password);
+    
+            if (!$passwordMatches) {
+                return $this->error('Invalid password', 401);
+            }
+    
             $user->load(['personalInfo', 'buyer', 'farmer']);
-
             $token = $user->createToken('auth_token')->plainTextToken;
-
+    
             return $this->success([
                 'user' => $user,
                 'token' => $token
             ], 'Login successful');
-
         } catch (ValidationException $e) {
             return $this->error($e->errors(), 422);
         } catch (\Exception $e) {

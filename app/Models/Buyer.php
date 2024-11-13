@@ -8,9 +8,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Buyer extends Model
 {
     use HasFactory;
+
     protected $table = 'Buyer';
     protected $primaryKey = 'BuyerID';
     public $timestamps = false;
+
+    protected $fillable = [
+        'UserID',
+        'DeliveryPreference',
+        'BAddress',
+    ];
 
     // Inverse of One-to-One relationship
     public function user()
@@ -24,4 +31,3 @@ class Buyer extends Model
         return $this->hasMany(Order::class, 'BuyerID');
     }
 }
-
