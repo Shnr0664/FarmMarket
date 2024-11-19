@@ -25,4 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
     Route::post('/order/complete/{orderId}', [OrderController::class, 'completeOrder']);
     Route::get('/orders', [OrderController::class, 'listOrders']);
+
 });
+Route::get('/products', [ProductController::class, 'index'])->name('products.index'); //Main page with products
+Route::get('/products/search', [ProductController::class, 'searchAndFilter'])->name('products.search'); // Search, filter, sort
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
