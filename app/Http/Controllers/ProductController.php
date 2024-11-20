@@ -140,7 +140,7 @@ class ProductController extends Controller
                 'price' => $product->product_price,
                 'quantity' => $product->product_quantity,
                 'description' => $product->product_desc,
-                'images' => json_decode($product->product_img), // Assuming `product_img` stores JSON for multiple images
+                'images' => $product->product_img, // Assuming `product_img` stores JSON for multiple images
                 'farm' => [
                     'id' => $product->farm->id,
                     'name' => $product->farm->name,
