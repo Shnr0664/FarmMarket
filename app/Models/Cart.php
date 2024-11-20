@@ -7,26 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
 {
+    /** @use HasFactory<\Database\Factories\CartFactory> */
     use HasFactory;
-    protected $table = 'Cart';
+
+    public $incrementing = false; // No auto-incrementing `id`
+    protected $keyType = 'string'; // Define key type if needed
+
     public $timestamps = false;
 
     protected $fillable = [
-        'BuyerID',
-        'ProductID',
-        'TotalAmount',
-        'CartItems',
+        'buyer_id',
+        'product_id',
+        'quantity',
+        'total_amount',
     ];
 
-    // Relationship with Buyer
+    protected $casts = [
+        'quantity' => 'integer',
+        'total_amount' => 'decimal:2',
+    ];
+
     public function buyer()
     {
-        return $this->belongsTo(Buyer::class, 'BuyerID');
+        return $this->belongsTo(Buyer::class, 'buyer_id');
     }
 
-    // Relationship with Product
     public function product()
     {
-        return $this->belongsTo(Product::class, 'ProductID');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

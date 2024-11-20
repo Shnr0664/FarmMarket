@@ -8,20 +8,18 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
      */
     public function up(): void
     {
-        Schema::create('Payment', function (Blueprint $table) {
-            $table->id('PaymentID');
-            $table->unsignedBigInteger('OrderID');
-            $table->string('PaymentMethod', 50);
-            $table->date('PaymentDate');
-            $table->decimal('TotalAmount', 10, 2);
+        Schema::create('farms', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('farmer_id');
+            $table->string('farm_name');
+            $table->decimal('farm_size', 10, 2);
+            $table->string('crops_types');
 
-            $table->foreign('OrderID')->references('OrderID')->on('Order')
+            $table->foreign('farmer_id')->references('id')->on('farmers')
                 ->onDelete('cascade')->onUpdate('cascade');
-
         });
     }
 
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payment');
+        Schema::dropIfExists('farms');
     }
 };

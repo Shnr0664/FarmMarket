@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Delivery;
-use App\Models\Order;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Delivery;
 
 class DeliverySeeder extends Seeder
 {
@@ -14,13 +13,6 @@ class DeliverySeeder extends Seeder
      */
     public function run(): void
     {
-        $orderIds = Order::pluck('OrderID')->toArray();
-
-        // Create Delivery records for each Order
-        foreach ($orderIds as $orderId) {
-            Delivery::factory()->create([ // Correct the method name here
-                'OrderID' => $orderId, // Associate with an existing Order ID
-            ]);
-        }
+        Delivery::factory(10)->create(); // Creates 10 sample deliveries
     }
 }

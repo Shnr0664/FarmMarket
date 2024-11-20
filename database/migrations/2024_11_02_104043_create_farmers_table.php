@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Farmer', function (Blueprint $table) {
-            $table->id('FarmerID');
-            $table->unsignedBigInteger('UserID');
+        Schema::create('farmers', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
 
-            $table->foreign('UserID')->references('UserID')->on('User')
+            $table->foreign('user_id')->references('id')->on('users')
                 ->onDelete('cascade')->onUpdate('cascade');
         });
 
-        Schema::table('Farmer', function (Blueprint $table) {
+        Schema::table('farmers', function (Blueprint $table) {
             $table->boolean('IsApproved')->default(false);
         });
     }
@@ -29,10 +29,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('Farmer', function (Blueprint $table) {
+        Schema::table('farmers', function (Blueprint $table) {
             $table->dropColumn('IsApproved');
         });
         
-        Schema::dropIfExists('farmer');
+        Schema::dropIfExists('farmers');
     }
 };

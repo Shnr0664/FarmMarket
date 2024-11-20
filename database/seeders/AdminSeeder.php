@@ -13,8 +13,8 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         DB::table('Admin')->insert([
-            'AdminID' => 1,
-            'UserID' => 11 // UserID for Admin User
+            'admin_id' => 1,
+            'user_id' => 11 // UserID for Admin User
         ]);
     }
 }

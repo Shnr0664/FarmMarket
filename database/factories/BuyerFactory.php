@@ -2,15 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Buyer;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Buyer>
  */
 class BuyerFactory extends Factory
 {
-    protected $model = Buyer::class;
     /**
      * Define the model's default state.
      *
@@ -19,9 +18,9 @@ class BuyerFactory extends Factory
     public function definition(): array
     {
         return [
-            'UserID' => null, // Will be set in the seeder
-            'DeliveryPreference' => $this->faker->randomElement(['Standard', 'Express']),
-            'BAddress' => $this->faker->address
+            'user_id' => User::factory(),
+            'delivery_preference' => $this->faker->randomElement(['Home Delivery', 'Pickup']),
+            'buyer_address' => $this->faker->address,
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Order;
+use App\Models\Buyer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class OrderFactory extends Factory
 {
-    protected $model = Order::class;
     /**
      * Define the model's default state.
      *
@@ -19,10 +18,10 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'BuyerID' => null, // Will be set in the seeder
-            'OrderDate' => $this->faker->date,
-            'TotalAmount' => $this->faker->randomFloat(2, 50, 500),
-            'OrderStatus' => $this->faker->randomElement(['Pending', 'Completed', 'Cancelled'])
+            'buyer_id' => Buyer::factory(),
+            'order_date' => $this->faker->date(),
+            'total_amount' => $this->faker->randomFloat(2, 10, 500),
+            'order_status' => $this->faker->randomElement(['Pending', 'Processing', 'Completed', 'Cancelled']),
         ];
     }
 }

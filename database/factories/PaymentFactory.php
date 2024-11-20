@@ -2,15 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Payment;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Order;
+use Illuminate\Database\Eloquent\Factories\Factory;use function Symfony\Component\String\u;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Payment>
  */
 class PaymentFactory extends Factory
 {
-    protected $model = Payment::class;
     /**
      * Define the model's default state.
      *
@@ -19,10 +18,10 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            'OrderID' => null, // Will be set in the seeder
-            'PaymentMethod' => $this->faker->creditCardType,
-            'PaymentDate' => $this->faker->date,
-            'TotalAmount' => $this->faker->randomFloat(2, 50, 500)
+            'order_id' => Order::factory(),
+            'payment_method' => $this->faker->randomElement(['Credit Card', 'Cash', 'Bank Transfer']),
+            'payment_date' => $this->faker->date(),
+            'total_amount' => $this->faker->randomFloat(2, 10, 500),
         ];
     }
 }

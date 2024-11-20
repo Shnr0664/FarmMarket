@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Buyer;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,10 +19,10 @@ class CartFactory extends Factory
     public function definition(): array
     {
         return [
-            'BuyerID' => null, // Will be set in the seeder
-            'ProductID' => null, // Will be set in the seeder
-            'TotalAmount' => $this->faker->randomFloat(2, 10, 100),
-            'CartItems' => $this->faker->numberBetween(1, 10),
+            'buyer_id' => Buyer::factory(),
+            'product_id' => Product::factory(),
+            'quantity' => $this->faker->numberBetween(1, 10),
+            'total_amount' => $this->faker->randomFloat(2, 1, 100),
         ];
     }
 }

@@ -7,31 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
-    protected $table = 'Product';
-    protected $primaryKey = 'ProductID';
+
     public $timestamps = false;
 
     protected $fillable = [
-        'FarmID',
-        'ProductName',
-        'ProductQuantity',
-        'ProductCategory',
-        'ProductDesc',
-        'ProductPrice',
-        'ProductImg',
+        'farm_id',
+        'product_name',
+        'product_quantity',
+        'product_category',
+        'product_desc',
+        'product_price',
+        'product_img',
     ];
+
+    protected $casts = [
+        'product_price' => 'decimal:2',
+    ];
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'product_id');
+    }
 
     // Inverse of One-to-Many relationship
     public function farm()
     {
-        return $this->belongsTo(Farm::class, 'FarmID');
-    }
-
-    // Many-to-Many relationship with Buyer through Cart
-    public function buyers()
-    {
-        return $this->belongsToMany(Buyer::class, 'Cart', 'ProductID', 'BuyerID')
-            ->withPivot('TotalAmount', 'CartItems');
+        return $this->belongsTo(Farm::class, 'farm_id');
     }
 }

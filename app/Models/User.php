@@ -2,49 +2,19 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Hash; // Add this line
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable, HasApiTokens;
 
-    protected $table = 'User';
-    protected $primaryKey = 'UserID';
-    public $timestamps = false;
+    public $timestamps = false; // Disable if timestamps are not in the table
 
-    public function admin()
-    {
-        return $this->hasOne(Admin::class, 'UserID');
-    }
-
-    public function buyer()
-    {
-        return $this->hasOne(Buyer::class, 'UserID');
-    }
-
-    public function farmer()
-    {
-        return $this->hasOne(Farmer::class, 'UserID');
-    }
-
-    public function personalInfo()
-    {
-        return $this->hasOne(PersonalInfo::class, 'UserID');
-    }
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'Password',
-        'ProfilePic',
-    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -52,14 +22,48 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'Password',
+        'password',
+        'remember_token',
+    ];
+
+    protected $fillable = [
+        'email',
+        'password',
+        'profile_pic',
     ];
 
     /**
-     * Hash the password before saving to the database.
+     * Get the attributes that should be cast.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function setPasswordAttribute($value)
+    public function admin()
     {
-        $this->attributes['Password'] = Hash::make($value);
+        return $this->hasOne(Admin::class, 'user_id');
+    }
+
+    public function buyer()
+    {
+        return $this->hasOne(Buyer::class, 'user_id');
+    }
+
+    public function farmer()
+    {
+        return $this->hasOne(Farmer::class, 'user_id');
+    }
+
+    public function personalInfo()
+    {
+        return $this->hasOne(PersonalInfo::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasManyThrough(Order::class, Buyer::class, 'user_id', 'buyer_id');
+    }
+
+    public function isAdmin()
+    {
+        return Admin::where('user_id', $this->id)->exists();
     }
 }

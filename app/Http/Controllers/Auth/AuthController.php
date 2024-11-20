@@ -17,32 +17,38 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email' => 'required|email|unique:PersonalInfo,Email',
+                'email' => 'required|email|unique:personal_infos,email',
                 'password' => 'required|min:8',
-                'user_type' => 'required|in:buyer,farmer',
+                'role' => 'required|in:buyer,farmer',
                 'name' => 'required|string|max:255',
-                'phone_number' => 'required|string|max:255',
-                'address' => 'required|string|max:255',
+                'phone_number' => 'required|string|max:20',
+                'address' => 'required|string|max:500'
             ]);
 
-            $user = new User();
-            $user->Password = bcrypt($request->password);
-            $user->save();
+            $user = User::create([
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
     
             $user->personalInfo()->create([
-                'Name' => $request->name,
-                'Email' => $request->email,
-                'PhoneNumber' => $request->phone_number,
-                'UserAddress' => $request->address,
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'user_address' => $request->address,
             ]);
     
             $message = 'Registration successful';
-    
-            switch ($request->user_type) {
+            if ($request->delivery_preference) {
+                $delivery_preference = $request->delivery_preference;
+            }
+            else{
+                $delivery_preference = 'default';
+            }
+            switch ($request->role) {
                 case 'buyer':
                     $user->buyer()->create([
-                        'DeliveryPreference' => 'default',
-                        'BAddress' => $request->address,
+                        'delivery_preference' => $request->delivery_preference,
+                        'buyer_address' => $request->address,
                     ]);
                     break;
                 case 'farmer':
@@ -77,16 +83,14 @@ class AuthController extends Controller
             ]);
     
             $user = User::whereHas('personalInfo', function ($query) use ($request) {
-                $query->where('Email', $request->email);
+                $query->where('email', $request->email);
             })->first();
     
             if (!$user) {
                 return $this->error('User not found', 404);
             }
             
-            $passwordMatches = Hash::check($request->password, $user->Password);
-    
-            if (!$passwordMatches) {
+            if (!Hash::check($request->password, $user->password)) {
                 return $this->error('Invalid password', 401);
             }
     

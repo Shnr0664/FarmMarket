@@ -2,24 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\Order;
-use App\Models\Buyer;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Order;
 
 class OrderSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-
-    public function run()
+    public function run(): void
     {
-        $buyerIds = Buyer::pluck('BuyerID')->toArray();
-        foreach ($buyerIds as $buyerId) {
-            Order::factory()->create([
-                'BuyerID' => $buyerId,
-            ]);
-        }
+        Order::factory(10)->create(); // Creates 10 sample orders
     }
 }

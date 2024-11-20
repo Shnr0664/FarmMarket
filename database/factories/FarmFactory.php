@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Farm;
+use App\Models\Farmer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class FarmFactory extends Factory
 {
-    protected $model = Farm::class;
     /**
      * Define the model's default state.
      *
@@ -19,10 +18,10 @@ class FarmFactory extends Factory
     public function definition(): array
     {
         return [
-            'FarmerID' => null, // Will be set in the seeder
-            'FarmName' => $this->faker->company,
-            'FarmSize' => $this->faker->randomFloat(2, 1, 100),
-            'CropsTypes' => $this->faker->words(3, true)
+            'farmer_id' => Farmer::factory(),
+            'farm_name' => $this->faker->company,
+            'farm_size' => $this->faker->randomFloat(2, 1, 100), // Random size in acres
+            'crops_types' => json_encode($this->faker->words(3)), // Example: ["wheat", "corn", "rice"]
         ];
     }
 }

@@ -2,21 +2,27 @@
 
 namespace Database\Factories;
 
-use App\Models\PersonalInfo;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PersonalInfo>
+ */
 class PersonalInfoFactory extends Factory
 {
-    protected $model = PersonalInfo::class;
-
-    public function definition()
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
         return [
-            'UserID' => null, // Will be set in the seeder
-            'Name' => $this->faker->name,
-            'Email' => $this->faker->unique()->safeEmail,
-            'PhoneNumber' => $this->faker->phoneNumber,
-            'UserAddress' => $this->faker->address
+            'user_id' => User::factory(),
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone_number' => $this->faker->phoneNumber,
+            'user_address' => $this->faker->address,
         ];
     }
 }

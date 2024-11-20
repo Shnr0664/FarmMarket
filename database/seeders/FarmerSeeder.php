@@ -2,29 +2,18 @@
 
 namespace Database\Seeders;
 
-use App\Models\Farmer;
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Farmer;
+
 
 class FarmerSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run()
+    public function run(): void
     {
-        // Get all User IDs and randomly select a subset (e.g., 5 out of 10)
-        $userIds = User::pluck('UserID')->toArray();
-        $selectedUserIds = collect($userIds)->random(5); // Adjust the number as needed
-
-        // Create Farmer records for the selected User IDs
-        foreach ($selectedUserIds as $userId) {
-            Farmer::factory()
-            ->approved() // This will create approved farmers for testing
-            ->create([
-                'UserID' => $userId,
-            ]);
-        }
+        Farmer::factory(10)->create();
     }
 }

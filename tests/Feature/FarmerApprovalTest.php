@@ -1,12 +1,12 @@
 <?php
-// tests/Feature/FarmerApprovalTest.php
+
+namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Farmer;
-use App\Models\Buyer; 
-use App\Http\Controllers\FarmerController;
+use App\Models\Buyer;
 use App\Models\PersonalInfo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -18,20 +18,20 @@ class FarmerApprovalTest extends TestCase
     {
         // Create buyer user
         $user = User::factory()->create([
-            'Password' => 'password123'
+            'password' => bcrypt('password123')
         ]);
-        // dd($user);
+
         $user->personalInfo()->create([
-            'Name' => 'Test Buyer',
-            'Email' => 'buyer@test.com',
-            'PhoneNumber' => '1234567890',
-            'UserAddress' => '123 Buy St'
+            'name' => 'Test Buyer',
+            'email' => 'buyer@test.com',
+            'phone_number' => '1234567890',
+            'user_address' => '123 Buy St'
         ]);
 
         Buyer::create([
-            'UserID' => $user->UserID,
-            'DeliveryPreference' => 'Standard',
-            'BAddress' => '123 Buy St'
+            'user_id' => $user->id,
+            'delivery_preference' => 'Standard',
+            'buyer_address' => '123 Buy St'
         ]);
 
         // Attempt login
@@ -39,20 +39,16 @@ class FarmerApprovalTest extends TestCase
             'email' => 'buyer@test.com',
             'password' => 'password123'
         ]);
-
         // dd($response->json());
-
         $response->assertStatus(200)
             ->assertJsonStructure([
+                'status',
+                'message',
                 'data' => [
                     'user',
                     'token'
-                ],
-                'message',
-                'status'
+                ]
             ]);
-
-            
     }
 
     public function test_farmer_registration_pending_approval()
@@ -68,11 +64,11 @@ class FarmerApprovalTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJson([
-                'message' => 'Registration successful. Please wait for admin approval.',
-                'status' => 'success'
+                'status' => 'success',
+                'message' => 'Registration successful. Please wait for admin approval.'
             ]);
 
-        $this->assertDatabaseHas('Farmer', [
+        $this->assertDatabaseHas('farmers', [
             'IsApproved' => false
         ]);
     }
@@ -81,32 +77,31 @@ class FarmerApprovalTest extends TestCase
     {
         // Create admin user
         $adminUser = User::factory()->create([
-            'Password' => '1234567890' // Encrypt password here
+            'password' => bcrypt('1234567890')
         ]);
         
         $adminUser->personalInfo()->create([
-            'Name' => 'Admin',
-            'Email' => 'admin@test.com',
-            'PhoneNumber' => '1234567890',
-            'UserAddress' => '123 Admin St'
+            'name' => 'Admin',
+            'email' => 'admin@test.com',
+            'phone_number' => '1234567890',
+            'user_address' => '123 Admin St'
         ]);
 
         Admin::create([
-            'AdminID' => 1,
-            'UserID' => $adminUser->UserID
+            'user_id' => $adminUser->id
         ]);
 
         // Create farmer
         $farmerUser = User::factory()->create();
         $farmerUser->personalInfo()->create([
-            'Name' => 'Farmer',
-            'Email' => 'farmer@test.com',
-            'PhoneNumber' => '1234567890',
-            'UserAddress' => '123 Farm St'
+            'name' => 'Farmer',
+            'email' => 'farmer@test.com',
+            'phone_number' => '1234567890',
+            'user_address' => '123 Farm St'
         ]);
         
         $farmer = Farmer::create([
-            'UserID' => $farmerUser->UserID,
+            'user_id' => $farmerUser->id,
             'IsApproved' => false
         ]);
 
@@ -116,19 +111,17 @@ class FarmerApprovalTest extends TestCase
             'password' => '1234567890'
         ]);
 
-        // dd($response->json());
-        // $this->assertArrayHasKey('token', $response->json());
         $token = $response->json()['data']['token'];
 
         // Approve farmer
-        $response = $this->patchJson("/api/v1/farmers/{$farmer->FarmerID}/approve", [], [
+        $response = $this->patchJson("/api/v1/farmers/{$farmer->id}/approve", [], [
             'Authorization' => 'Bearer ' . $token
         ]);
 
         $response->assertStatus(200);
         
-        $this->assertDatabaseHas('Farmer', [
-            'FarmerID' => $farmer->FarmerID,
+        $this->assertDatabaseHas('farmers', [
+            'id' => $farmer->id,
             'IsApproved' => true
         ]);
     }

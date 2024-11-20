@@ -2,26 +2,18 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
-use App\Models\Farm;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Product;
+
 
 class ProductSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run()
+    public function run(): void
     {
-        // Get all Farm IDs
-        $farmIds = Farm::pluck('FarmID')->toArray();
-
-        // Create Product records for each Farm
-        foreach ($farmIds as $farmId) {
-            Product::factory()->create([
-                'FarmID' => $farmId, // Associate with an existing Farm ID
-            ]);
-        }
+        Product::factory(10)->create(); // Creates 10 sample products
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Farm;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,16 +18,14 @@ class FarmerFactory extends Factory
     public function definition(): array
     {
         return [
-            'FarmerID' => null,
-            'IsApproved' => false
+            'user_id' => User::factory(),
         ];
     }
 
-    // State for approved farmers
     public function approved()
     {
         return $this->state(fn (array $attributes) => [
-            'IsApproved' => true
+            'is_approved' => true
         ]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Delivery;
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class DeliveryFactory extends Factory
 {
-    protected $model = Delivery::class;
     /**
      * Define the model's default state.
      *
@@ -19,11 +18,11 @@ class DeliveryFactory extends Factory
     public function definition(): array
     {
         return [
-            'OrderID' => null, // Will be set in the seeder
-            'DeliveryLoc' => $this->faker->address,
-            'DShipDate' => $this->faker->date,
-            'DeliveryStatus' => $this->faker->randomElement(['In Progress', 'Completed', 'Cancelled']),
-            'DFinishDate' => $this->faker->date
+            'order_id' => Order::factory(),
+            'delivery_location' => $this->faker->address,
+            'delivery_ship_date' => $this->faker->date(),
+            'delivery_status' => $this->faker->randomElement(['Delivered', 'Pending', 'Cancelled']),
+            'delivery_finish_date' => $this->faker->date(),
         ];
     }
 }

@@ -2,25 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\Payment;
-use App\Models\Order;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Payment;
 
 class PaymentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run()
+    public function run(): void
     {
-        $orderIds = Order::pluck('OrderID')->toArray();
-
-        // Create Payment records for each Order
-        foreach ($orderIds as $orderId) {
-            Payment::factory()->create([
-                'OrderID' => $orderId, // Associate with an existing Order ID
-            ]);
-        }
+        Payment::factory(10)->create(); // Creates 10 sample payments
     }
 }
