@@ -12,6 +12,7 @@ Route::get('products', [ProductController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('users', [UserController::class, 'index']);
+    Route::get('user', [UserController::class, 'show']);
     Route::put('users/{user}/personal-info', [UserController::class, 'updatePersonalInfo']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);

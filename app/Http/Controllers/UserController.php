@@ -29,6 +29,20 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(Request $request): JsonResponse
+    {
+        $user = $request->user(); // Get the authenticated user
+
+        // Load related information for the authenticated user
+        $userData = $user->load(['personalInfo', 'buyer', 'farmer']);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $userData,
+        ]);
+    }
+
+
     public function register(StoreUserRequest $request): JsonResponse
     {
         $validated = $request->validated();

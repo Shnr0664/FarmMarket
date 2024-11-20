@@ -20,22 +20,17 @@ class ProductController extends Controller
             ->groupBy('product_category');
 
         // Transform data for the frontend (optional)
-        $formattedProducts = $products->map(function ($items, $category) {
-            return [
-                'category' => $category,
-                'products' => $items->map(function ($product) {
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->product_name,
-                        'price' => $product->product_price,
-                        'quantity' => $product->product_quantity,
-                        'description' => $product->product_desc,
-                        'image' => $product->product_img,
-                        'farm_location' => $product->farm->farm_location, // Assuming `farm_location` exists
-                    ];
-                }),
-            ];
-        });
+        $formattedProducts = $products->flatMap(function ($items, $category) {
+            return $items->map(function ($product) use ($category) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->product_name,
+                    'category' => $category,
+                    'image' => $product->product_img,
+                    'price' => $product->product_price,
+                ];
+            });
+        })->values();
 
 
         return response()->json([
