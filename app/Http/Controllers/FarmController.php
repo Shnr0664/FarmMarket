@@ -13,7 +13,8 @@ class FarmController extends Controller
      */
     public function index()
     {
-        //
+        $farms = auth()->user()->farmer->farms()->with('products')->get();
+        return $this->success(['farms' => $farms]);
     }
 
     /**
@@ -29,7 +30,16 @@ class FarmController extends Controller
      */
     public function store(StoreFarmRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $validated['farmer_id'] = auth()->user()->farmer->id;
+        
+        $farm = Farm::create($validated);
+        
+        return $this->success(
+            ['farm' => $farm->load('products')],
+            'Farm created successfully',
+            201
+        );
     }
 
     /**
@@ -37,7 +47,11 @@ class FarmController extends Controller
      */
     public function show(Farm $farm)
     {
-        //
+        if ($farm->farmer_id !== auth()->user()->farmer->id) {
+            return $this->error('Unauthorized', 403);
+        }
+
+        return $this->success(['farm' => $farm->load('products')]);
     }
 
     /**
@@ -53,7 +67,12 @@ class FarmController extends Controller
      */
     public function update(UpdateFarmRequest $request, Farm $farm)
     {
-        //
+        $farm->update($request->validated());
+        
+        return $this->success(
+            ['farm' => $farm->fresh()->load('products')],
+            'Farm updated successfully'
+        );
     }
 
     /**
@@ -61,6 +80,11 @@ class FarmController extends Controller
      */
     public function destroy(Farm $farm)
     {
-        //
+        if ($farm->farmer_id !== auth()->user()->farmer->id) {
+            return $this->error('Unauthorized', 403);
+        }
+
+        $farm->delete();
+        return $this->success(null, 'Farm deleted successfully');
     }
 }

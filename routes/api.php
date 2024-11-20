@@ -35,10 +35,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
     Route::post('/order/complete/{orderId}', [OrderController::class, 'completeOrder']);
     Route::get('/orders', [OrderController::class, 'listOrders']);
-
-});
-
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::patch('farmers/{farmer}/approve', [FarmerController::class, 'approve']);
-    Route::patch('farmers/{farmer}/reject', [FarmerController::class, 'reject']);
-});
+}
