@@ -13,19 +13,20 @@ use App\Http\Controllers\UserController;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
-Route::get('products', [ProductController::class, 'index']);
+Route::get('products', [ProductController::class, 'index']); 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index'); //Main page with products
 Route::get('/products/search', [ProductController::class, 'searchAndFilter'])->name('products.search'); // Search, filter, sort
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::get('auth/user', [AuthController::class, 'user']);
     Route::get('users', [UserController::class, 'index']);
     Route::get('user', [UserController::class, 'show']);
     Route::put('users/{user}/personal-info', [UserController::class, 'updatePersonalInfo']);
-    Route::post('/logout', [UserController::class, 'logout']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
-
+    
     Route::post('/cart/add', [CartController::class, 'addToCart']);
     Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::get('/cart/view', [CartController::class, 'viewCart']);
@@ -35,4 +36,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
     Route::post('/order/complete/{orderId}', [OrderController::class, 'completeOrder']);
     Route::get('/orders', [OrderController::class, 'listOrders']);
-}
+    Route::middleware('farmer.approved')->group(function () {
+        Route::apiResource('farms', FarmController::class);
+        Route::apiResource('farms.products', ProductController::class);
+    });
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::patch('farmers/{farmer}/approve', [FarmerController::class, 'approve']);
+    Route::patch('farmers/{farmer}/reject', [FarmerController::class, 'reject']);
+});

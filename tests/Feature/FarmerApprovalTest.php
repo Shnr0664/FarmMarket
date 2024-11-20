@@ -35,7 +35,7 @@ class FarmerApprovalTest extends TestCase
         ]);
 
         // Attempt login
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson('api/login', [
             'email' => 'buyer@test.com',
             'password' => 'password123'
         ]);
@@ -46,21 +46,23 @@ class FarmerApprovalTest extends TestCase
                 'message',
                 'data' => [
                     'user',
-                    'token'
+                    'userToken'
                 ]
             ]);
     }
 
     public function test_farmer_registration_pending_approval()
     {
-        $response = $this->postJson('/api/v1/auth/register', [
+        $response = $this->postJson('api/register', [
             'email' => 'farmer@test.com',
             'password' => 'password123',
-            'user_type' => 'farmer',
+            'role' => 'farmer',
             'name' => 'Test Farmer',
             'phone_number' => '1234567890',
             'address' => '123 Farm St'
         ]);
+
+        dd($response->json());
 
         $response->assertStatus(201)
             ->assertJson([
@@ -106,15 +108,15 @@ class FarmerApprovalTest extends TestCase
         ]);
 
         // Login as admin
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson('/api/login', [
             'email' => 'admin@test.com',
             'password' => '1234567890'
         ]);
-
-        $token = $response->json()['data']['token'];
+        // dd($response->json());
+        $token = $response->json()['data']['userToken'];
 
         // Approve farmer
-        $response = $this->patchJson("/api/v1/farmers/{$farmer->id}/approve", [], [
+        $response = $this->patchJson("/api/farmers/{$farmer->id}/approve", [], [
             'Authorization' => 'Bearer ' . $token
         ]);
 
