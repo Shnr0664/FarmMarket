@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+
     public function index(Request $request): JsonResponse
     {
         if ($request->user()->cannot('viewAny', User::class)) {
@@ -28,20 +29,6 @@ class UserController extends Controller
             'data' => $users
         ]);
     }
-
-    public function show(Request $request): JsonResponse
-    {
-        $user = $request->user(); // Get the authenticated user
-
-        // Load related information for the authenticated user
-        $userData = $user->load(['personalInfo', 'buyer', 'farmer']);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $userData,
-        ]);
-    }
-
 
     public function register(StoreUserRequest $request): JsonResponse
     {
@@ -95,7 +82,7 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Login successful',
             'user' => $user->load(['personalInfo', 'buyer', 'farmer']),
-            'token' => $token,
+            'userToken' => $token,
         ]);
     }
 
@@ -175,5 +162,16 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function show(Request $request): JsonResponse
+    {
+        $user = $request->user(); // Get the authenticated user
+        // Load related information for the authenticated user
+        $userData = $user->load(['personalInfo', 'buyer', 'farmer']);
+        return response()->json([
+            'status' => 'success',
+            'data' => $userData,
+        ]);
     }
 }
