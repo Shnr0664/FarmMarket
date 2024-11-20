@@ -36,6 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
     Route::post('/order/complete/{orderId}', [OrderController::class, 'completeOrder']);
     Route::get('/orders', [OrderController::class, 'listOrders']);
+    Route::middleware('farmer.approved')->group(function () {
+        Route::apiResource('farms', FarmController::class);
+        Route::apiResource('farms.products', ProductController::class);
+    });
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {

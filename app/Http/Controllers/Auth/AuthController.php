@@ -65,7 +65,7 @@ class AuthController extends Controller
     
             return $this->success([
                 'user' => $user->load('personalInfo'),
-                'token' => $token,
+                'userToken' => $token,
             ], $message, 201);
         } catch (ValidationException $e) {
             return $this->error($e->errors(), 422);
@@ -99,7 +99,7 @@ class AuthController extends Controller
     
             return $this->success([
                 'user' => $user,
-                'token' => $token
+                'userToken' => $token
             ], 'Login successful');
         } catch (ValidationException $e) {
             return $this->error($e->errors(), 422);
