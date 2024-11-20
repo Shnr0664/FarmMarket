@@ -11,7 +11,10 @@ class Admin extends Model
     protected $table = 'Admin';
     protected $primaryKey = 'AdminID';
     public $timestamps = false;
-
+    protected $fillable = [
+        'UserID',
+        'AdminID'
+    ];
     // Inverse of One-to-One relationship
     public function user()
     {

@@ -24,9 +24,9 @@ class AuthController extends Controller
                 'phone_number' => 'required|string|max:255',
                 'address' => 'required|string|max:255',
             ]);
-    
+
             $user = new User();
-            $user->Password = $request->password;
+            $user->Password = bcrypt($request->password);
             $user->save();
     
             $user->personalInfo()->create([
@@ -36,6 +36,8 @@ class AuthController extends Controller
                 'UserAddress' => $request->address,
             ]);
     
+            $message = 'Registration successful';
+    
             switch ($request->user_type) {
                 case 'buyer':
                     $user->buyer()->create([
@@ -44,7 +46,10 @@ class AuthController extends Controller
                     ]);
                     break;
                 case 'farmer':
-                    $user->farmer()->create([]);
+                    $user->farmer()->create([
+                        'IsApproved' => false,
+                    ]);
+                    $message = 'Registration successful. Please wait for admin approval.';
                     break;
                 default:
                     return $this->error('Invalid user type', 400);
@@ -54,8 +59,8 @@ class AuthController extends Controller
     
             return $this->success([
                 'user' => $user->load('personalInfo'),
-                'token' => $token
-            ], 'Registration successful', 201);
+                'token' => $token,
+            ], $message, 201);
         } catch (ValidationException $e) {
             return $this->error($e->errors(), 422);
         } catch (\Exception $e) {

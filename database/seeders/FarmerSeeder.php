@@ -20,8 +20,10 @@ class FarmerSeeder extends Seeder
 
         // Create Farmer records for the selected User IDs
         foreach ($selectedUserIds as $userId) {
-            Farmer::factory()->create([
-                'UserID' => $userId, // Associate with a randomly selected User ID
+            Farmer::factory()
+            ->approved() // This will create approved farmers for testing
+            ->create([
+                'UserID' => $userId,
             ]);
         }
     }

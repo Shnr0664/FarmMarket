@@ -18,7 +18,16 @@ class FarmerFactory extends Factory
     public function definition(): array
     {
         return [
-            'FarmerID' => null, // Will be set in the seeder
+            'FarmerID' => null,
+            'IsApproved' => false
         ];
+    }
+
+    // State for approved farmers
+    public function approved()
+    {
+        return $this->state(fn (array $attributes) => [
+            'IsApproved' => true
+        ]);
     }
 }

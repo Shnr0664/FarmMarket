@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Providers\MiddlewareServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,8 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Register your middleware here
+        $middleware->appendToGroup('admin', \App\Http\Middleware\AdminMiddleware::class);
     })
+    ->withProviders([
+        MiddlewareServiceProvider::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
         // Register your exception handlers here
     })->create();

@@ -18,6 +18,10 @@ return new class extends Migration
             $table->foreign('UserID')->references('UserID')->on('User')
                 ->onDelete('cascade')->onUpdate('cascade');
         });
+
+        Schema::table('Farmer', function (Blueprint $table) {
+            $table->boolean('IsApproved')->default(false);
+        });
     }
 
     /**
@@ -25,6 +29,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('Farmer', function (Blueprint $table) {
+            $table->dropColumn('IsApproved');
+        });
+        
         Schema::dropIfExists('farmer');
     }
 };

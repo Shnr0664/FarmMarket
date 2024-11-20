@@ -12,6 +12,20 @@ class Farmer extends Model
     protected $primaryKey = 'FarmerID';
     public $timestamps = false;
 
+    protected $fillable = [
+        'UserID',
+        'IsApproved'
+    ];
+
+    protected $casts = [
+        'IsApproved' => 'boolean'
+    ];
+
+    public function scopeApproved($query)
+    {
+        return $query->where('IsApproved', true);
+    }
+
     // Inverse of One-to-One relationship
     public function user()
     {
