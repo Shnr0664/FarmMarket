@@ -45,9 +45,9 @@ class CartController extends Controller
             Cart::where('buyer_id', $buyerId)
                 ->where('product_id', $validated['product_id'])
                 ->update([
-                'quantity' => $cart_item->quantity + $validated['quantity'],
-                'total_amount' => $cart_item->total_amount + $productTotal,
-            ]);
+                    'quantity' => $cart_item->quantity + $validated['quantity'],
+                    'total_amount' => $cart_item->total_amount + $productTotal,
+                ]);
         } else {
             $cart_item = Cart::create([
                 'buyer_id' => $buyerId,
@@ -78,7 +78,9 @@ class CartController extends Controller
             ], 404);
         }
 
-        $cart = Cart::where('buyer_id', $buyer->id)->get();
+        $cart = Cart::where('buyer_id', $buyer->id)
+            ->with('product') // Ensure you have a `product` relationship on the `Cart` model
+            ->get();
 
         if ($cart->isEmpty()) {
             return response()->json([
@@ -94,10 +96,22 @@ class CartController extends Controller
             ], 403);
         }
 
+        // Transform the cart data to match the expected structure
+        $cartItems = $cart->map(function ($item) {
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->product_name,
+                'image' => $item->product->product_img, // Assuming the product has an `image` property
+                'price' => (float) $item->product->product_price, // Assuming the product has a `price` property
+                'quantity' => $item->quantity,
+            ];
+        });
 
         return response()->json([
             'status' => 'success',
-            'cart' => $cart,
+            'data' => [
+                'cartItems' => $cartItems,
+            ],
         ]);
     }
 
