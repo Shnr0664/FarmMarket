@@ -11,7 +11,7 @@ class UpdateproductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->farmer !== null;
     }
 
     /**
@@ -22,7 +22,13 @@ class UpdateproductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'farm_id' => 'required|exists:farms,id',
+            'product_name' => 'required|string|max:255',
+            'product_quantity' => 'required|integer|min:0',
+            'product_category' => 'required|string|in:Fruit,Vegetable,Grain',
+            'product_desc' => 'required|string',
+            'product_price' => 'required|numeric|min:0',
+            'product_img' => 'required|string'
         ];
     }
 }

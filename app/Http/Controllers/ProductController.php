@@ -6,6 +6,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateproductRequest;
 use App\Http\Requests\ProductSearchAndFilterRequest;
 use App\Models\Product;
+use App\Models\Farm;
 
 class ProductController extends Controller
 {
@@ -100,19 +101,31 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request, $farmId)
     {
-        //
+        $farm = Farm::find($farmId);
+
+        if (!$farm || $farm->farmer_id !== auth()->user()->farmer->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $validated = $request->validated();
+        $validated['farm_id'] = $farm->id;
+        $product = Product::create($validated);
+
+        // return $this->success(['product' => $product], 'Product created successfully');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product created successfully',
+            'data' => [
+                'product' => $product,
+            ],
+        ]);
     }
 
     /**
@@ -140,7 +153,7 @@ class ProductController extends Controller
                 'price' => $product->product_price,
                 'quantity' => $product->product_quantity,
                 'description' => $product->product_desc,
-                'images' => json_decode($product->product_img), // Assuming `product_img` stores JSON for multiple images
+                'image' => $product->product_img, // Assuming `product_img` stores JSON for multiple images
                 'farm' => [
                     'id' => $product->farm->id,
                     'name' => $product->farm->name,
@@ -163,7 +176,23 @@ class ProductController extends Controller
      */
     public function update(UpdateproductRequest $request, Product $product)
     {
-        //
+        if ($product->farm->farmer_id !== auth()->user()->farmer->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $product->update($request->validated());
+
+        // return $this->success(['product' => $product->fresh()], 'Product updated successfully');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product updated successfully',
+            'data' => [
+                'product' => $product->fresh(),
+            ],
+        ]);
     }
 
     /**
@@ -171,6 +200,19 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        if ($product->farm->farmer_id !== auth()->user()->farmer->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $product->delete();
+
+        // return $this->success([], 'Product deleted successfully');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product deleted successfully',
+        ]);
     }
 }

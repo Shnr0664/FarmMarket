@@ -15,18 +15,35 @@ class UserController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        if ($request->user()->cannot('viewAny', User::class)) {
+        if ($request->user()->isAdmin()) {
+            $users = User::with(['personalInfo', 'buyer', 'farmer'])->get();
+
+            // Transform the data to include only id, email, and role
+            $transformedUsers = $users->map(function ($user) {
+                $role = null;
+                if ($user->farmer) {
+                    $role = 'farmer';
+                } elseif ($user->buyer) {
+                    $role = 'buyer';
+                }
+
+                return [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'role' => $role,
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $transformedUsers,
+            ]);
+        } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized',
             ], 403);
         }
-
-        $users = User::with(['personalInfo', 'buyer', 'farmer'])->get();
-        return response()->json([
-            'status' => 'success',
-            'data' => $users
-        ]);
     }
 
     public function show(Request $request): JsonResponse

@@ -63,6 +63,17 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        // Check if the user is a farmer and not approved
+        if ($user->farmer && !$user->farmer->IsApproved) {
+            Auth::logout();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Your account is pending approval. Please wait for admin approval.',
+            ], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

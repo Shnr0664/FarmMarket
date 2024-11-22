@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFarmRequest;
 use App\Http\Requests\UpdateFarmRequest;
 use App\Models\Farm;
+use App\Traits\ApiResponse;
 
 class FarmController extends Controller
 {
+    use ApiResponse;
     /**
      * Display a listing of the resource.
      */

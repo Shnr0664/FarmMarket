@@ -2,11 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\FarmerController; // Add this import
+use App\Http\Controllers\FarmerController;
+use App\Http\Controllers\FarmController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\FarmManagementController;
 
 // Public routes
 
@@ -34,13 +36,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
     Route::post('/order/complete/{orderId}', [OrderController::class, 'completeOrder']);
     Route::get('/orders', [OrderController::class, 'listOrders']);
-    Route::middleware('farmer.approved')->group(function () {
-        Route::apiResource('farms', FarmController::class);
-        Route::apiResource('farms.products', ProductController::class);
-    });
+
+
+    Route::post('/farms', [FarmController::class, 'store']);
+    Route::post('/farms/{farm}/update', [FarmController::class, 'update']);
+    Route::post('/farms/{farm}/delete', [FarmController::class, 'destroy']);
+
+    Route::post('/farms/{farm}/products', [ProductController::class, 'store']);
+    Route::post('/products/{product}/update', [ProductController::class, 'update']);
+    Route::post('/products/{product}/delete', [ProductController::class, 'destroy']);
+
+    Route::get('/farmers', [FarmerController::class, 'index']);
+    Route::get('/farmers/{farmer}', [FarmerController::class, 'show']);
+
+    Route::get('/farms', [FarmManagementController::class, 'index']);
+    Route::get('/farms/{farm}', [FarmManagementController::class, 'show']);
+
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::patch('farmers/{farmer}/approve', [FarmerController::class, 'approve']);
-    Route::patch('farmers/{farmer}/reject', [FarmerController::class, 'reject']);
+    Route::post('farmers/{farmer}/approve', [FarmerController::class, 'approve']);
+    Route::post('farmers/{farmer}/reject', [FarmerController::class, 'reject']);
 });
