@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Farmer extends Model
 {
+    /** @use HasFactory<\Database\Factories\FarmerFactory> */
     use HasFactory;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -23,7 +25,7 @@ class Farmer extends Model
     {
         return $query->where('IsApproved', true);
     }
-    
+
     // Inverse of One-to-One relationship
     public function user()
     {

@@ -23,11 +23,23 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $email = $this->faker->unique()->safeEmail;
         return [
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => bcrypt('password'), // Default password
-            'profile_pic' => $this->faker->imageUrl(640, 480, 'people'),
+            'email' => $email,
+            'password' => bcrypt('pass1234'), // Default password
+            'profile_pic' => $this->generateAvatar($email),
             'remember_token' => Str::random(10),
         ];
+    }
+    /**
+     * Generate a random avatar URL using DiceBear API.
+     *
+     * @param string $identifier
+     * @return string
+     */
+    private function generateAvatar(string $identifier): string
+    {
+        // Use the updated DiceBear API
+        return "https://api.dicebear.com/6.x/adventurer/svg?seed=" . urlencode($identifier);
     }
 }

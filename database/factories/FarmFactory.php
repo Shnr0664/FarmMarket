@@ -17,11 +17,21 @@ class FarmFactory extends Factory
      */
     public function definition(): array
     {
+        $cropTypes = [
+            ['wheat', 'corn', 'rice'],
+            ['tomatoes', 'potatoes', 'onions'],
+            ['grapes', 'oranges', 'apples'],
+            ['lentils', 'chickpeas', 'soybeans'],
+            ['sunflower', 'canola', 'groundnut'],
+            ['cotton', 'jute', 'hemp'],
+            ['basil', 'mint', 'turmeric'],
+        ];
+
         return [
             'farmer_id' => Farmer::factory(),
             'farm_name' => $this->faker->company,
             'farm_size' => $this->faker->randomFloat(2, 1, 100), // Random size in acres
-            'crops_types' => json_encode($this->faker->words(3)), // Example: ["wheat", "corn", "rice"]
+            'crops_types' => json_encode($this->faker->randomElement($cropTypes)), // Randomly select a crop type
         ];
     }
 }

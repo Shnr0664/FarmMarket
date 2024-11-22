@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+
 use App\Models\Buyer;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,7 +17,7 @@ class BuyerSeeder extends Seeder
     {
         $userIds = User::pluck('user_id')->toArray();
         foreach ($userIds as $userId) {
-            Buyer::factory()->create([
+            Buyer::factory(25)->create([
                 'user_id' => $userId, // Associate with an existing User ID
             ]);
         }

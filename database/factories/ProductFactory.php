@@ -17,14 +17,38 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $categories = [
+            'Vegetables' => ['Tomatoes', 'Potatoes', 'Onions', 'Carrots', 'Cucumbers'],
+            'Fruits' => ['Apples', 'Bananas', 'Oranges', 'Grapes', 'Pineapples'],
+        ];
+
+        $category = $this->faker->randomElement(array_keys($categories));
+        $productName = $this->faker->randomElement($categories[$category]);
+
+        // Map product names to image filenames
+        $images = [
+            'Tomatoes' => 'tomato.jpg',
+            'Potatoes' => 'potato.jpg',
+            'Onions' => 'onion.jpg',
+            'Carrots' => 'carrot.jpg',
+            'Cucumbers' => 'cucumber.jpg',
+            'Apples' => 'apple.jpg',
+            'Bananas' => 'banana.jpg',
+            'Oranges' => 'orange.jpg',
+            'Grapes' => 'grape.jpg',
+            'Pineapples' => 'pineapple.jpg',
+        ];
+
+        $imagePath = isset($images[$productName]) ? "images/products/" . $images[$productName] : "images/products/default.jpg";
+
         return [
             'farm_id' => Farm::factory(),
-            'product_name' => $this->faker->word,
-            'product_quantity' => $this->faker->numberBetween(10, 100),
-            'product_category' => $this->faker->randomElement(['Fruit', 'Vegetable', 'Grain']),
+            'product_name' => $productName,
+            'product_quantity' => $this->faker->numberBetween(10, 500),
+            'product_category' => $category,
             'product_desc' => $this->faker->sentence,
             'product_price' => $this->faker->randomFloat(2, 1, 100),
-            'product_img' => $this->faker->imageUrl(640, 480, 'product'),
+            'product_img' => $imagePath,
         ];
     }
 }
