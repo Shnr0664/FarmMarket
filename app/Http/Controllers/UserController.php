@@ -48,9 +48,8 @@ class UserController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $user = $request->user(); // Get the authenticated user
+        $user = $request->user();
 
-        // Load related information for the authenticated user
         $userData = $user->load(['personalInfo', 'buyer', 'farmer']);
 
         return response()->json([
