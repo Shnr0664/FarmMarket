@@ -48,7 +48,13 @@ class ProductFactory extends Factory
             'product_category' => $category,
             'product_desc' => $this->faker->sentence,
             'product_price' => $this->faker->randomFloat(2, 1, 100),
-            'product_img' => $imagePath,
+            'product_img' => $this->generateIcon($productName),
         ];
+    }
+
+    private function generateIcon(string $identifier): string
+    {
+        // Use the updated DiceBear API
+        return "https://api.dicebear.com/6.x/icons/svg?seed=" . urlencode($identifier);
     }
 }

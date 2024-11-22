@@ -15,9 +15,9 @@ class BuyerSeeder extends Seeder
      */
     public function run()
     {
-        $userIds = User::pluck('user_id')->toArray();
+        $userIds = User::pluck('id')->toArray();
         foreach ($userIds as $userId) {
-            Buyer::factory(25)->create([
+            Buyer::factory(5)->create([
                 'user_id' => $userId, // Associate with an existing User ID
             ]);
         }

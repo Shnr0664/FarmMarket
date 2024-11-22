@@ -14,7 +14,6 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 Route::get('products', [ProductController::class, 'index']);
-Route::get('/products', [ProductController::class, 'index'])->name('products.index'); //Main page with products
 Route::get('/products/search', [ProductController::class, 'searchAndFilter'])->name('products.search'); // Search, filter, sort
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 

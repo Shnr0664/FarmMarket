@@ -18,7 +18,7 @@ class PersonalInfoSeeder extends Seeder
 
         foreach ($users as $user) {
             PersonalInfo::factory()->create([
-                'UserID' => $user->UserID,
+                'user_id' => $user->id,
             ]);
         }
     }
