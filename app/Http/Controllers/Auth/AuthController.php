@@ -20,11 +20,24 @@ class AuthController extends Controller
     public function register(StoreUserRequest $request): JsonResponse
     {
         $validated = $request->validated();
+        $emailSeed = urlencode($validated['email']);
+
+
+        if (empty($validated['profile_pic']) || $validated['profile_pic'] == 'null') {
+
+
+            $diceBearUrl = "https://api.dicebear.com/6.x/notionists-neutral/svg?seed={$emailSeed}";
+
+            // Fetch and encode the image in base64
+            $base64Image = $this->fetchBase64Image($diceBearUrl);
+
+            $validated['profile_pic'] = $base64Image;
+        }
 
         $user = User::create([
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'profile_pic' => $validated['profile_pic'] ?? null,
+            'profile_pic' => $validated['profile_pic'],
             'role' => $validated['role'], // Add role to fillable in User model
         ]);
 
@@ -93,5 +106,24 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'Logged out successfully',
         ], 200);
+    }
+
+    private function fetchBase64Image(string $url): string
+    {
+        try {
+            // Fetch the image content
+            $imageContents = file_get_contents($url);
+
+            if ($imageContents === false) {
+                throw new \Exception("Failed to fetch image from {$url}");
+            }
+
+            // Encode the image in base64
+            $base64Image = 'data:image/svg+xml;base64,' . base64_encode($imageContents);
+
+            return $base64Image;
+        } catch (\Exception $e) {
+            return $e;
+        }
     }
 }
