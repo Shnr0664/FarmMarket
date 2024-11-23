@@ -8,16 +8,19 @@ class StoreFarmRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->farmer !== null;
+        $farmer = $this->user()->farmer;
+        return $farmer !== null && $farmer->IsApproved;
     }
+
 
     public function rules(): array
     {
         return [
-            'farm_name' => 'required|string|max:255',
+            'farm_name' => 'required|string|max:255|unique:farms,farm_name',
             'farm_size' => 'required|numeric|min:0',
             'crops_types' => 'required|array',
-            'crops_types.*' => 'string'
+            'crops_types.*' => 'string',
         ];
     }
+
 }

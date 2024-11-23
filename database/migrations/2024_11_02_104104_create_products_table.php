@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('product_category');
             $table->string('product_desc');
             $table->decimal('product_price', 10, 2);
-            $table->string('product_img');
+            $table->longText('product_img');
 
             $table->foreign('farm_id')->references('id')->on('farms')
                 ->onDelete('cascade')->onUpdate('cascade');

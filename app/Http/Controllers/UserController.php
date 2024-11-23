@@ -66,7 +66,7 @@ class UserController extends Controller
         $user = User::create([
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'profile_pic' => $validated['profile_pic'] ?? null,
+            'profile_pic' => $validated['profile_pic'] ?? "https://api.dicebear.com/6.x/notionists-neutral/svg?seed=" . urlencode($validated['email']),
             'role' => $validated['role'], // Add role to fillable in User model
         ]);
 

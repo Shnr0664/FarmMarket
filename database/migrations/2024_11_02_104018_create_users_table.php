@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('password');
             $table->string('email')->unique();
-            $table->string('profile_pic')->nullable();
+            $table->longText('profile_pic')->nullable();
             $table->rememberToken();
         });
 
