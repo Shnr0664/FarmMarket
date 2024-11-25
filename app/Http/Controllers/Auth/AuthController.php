@@ -44,9 +44,11 @@ class AuthController extends Controller
             $user->farmer()->create();
         }
 
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
             'status' => 'success',
-            'message' => 'User registered successfully',
+            'message' => 'User registered successfully. Please verify your email.',
             'user' => $user->load(['personalInfo', 'buyer', 'farmer']),
         ], 201);
     }
@@ -63,6 +65,16 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        // Check if the user is not verified
+        if (!$user->hasVerifiedEmail()) {
+            Auth::logout();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Your email address is not verified. Please verify your email to proceed.',
+            ], 403);
+        }
 
         // Check if the user is a farmer and not approved
         if ($user->farmer && !$user->farmer->IsApproved) {

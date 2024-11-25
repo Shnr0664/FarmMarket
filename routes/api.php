@@ -9,6 +9,18 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FarmManagementController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/send-test-email', function () {
+    Mail::raw('This is a test email sent using Gmail SMTP with App Password.', function ($message) {
+        $message->to('shynaray.sagidullayeva@nu.edu.kz') // Replace with your email
+            ->subject('Test Email');
+    });
+
+    return 'Test email sent!';
+});
+
 
 // Public routes
 
@@ -19,8 +31,28 @@ Route::get('products', [ProductController::class, 'index']);
 Route::get('/products/search', [ProductController::class, 'searchAndFilter'])->name('products.search'); // Search, filter, sort
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
-// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Email verification routes
+    Route::post('/email/resend', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification link sent.']);
+    })->name('verification.resend');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return response()->json(['message' => 'Email verified successfully.']);
+    })->middleware('signed')->name('verification.verify');
+
+    Route::get('/email/verify', function (Request $request) {
+        return $request->user()->hasVerifiedEmail()
+            ? response()->json(['message' => 'Email is already verified.'])
+            : response()->json(['message' => 'Email is not verified.'], 403);
+    })->name('verification.status');
+});
+
+// Protected routes
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('users', [UserController::class, 'index']);
     Route::get('user', [UserController::class, 'show']);
     Route::put('users/{user}/personal-info', [UserController::class, 'updatePersonalInfo']);
@@ -51,6 +83,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/farms', [FarmManagementController::class, 'index']);
     Route::get('/farms/{farm}', [FarmManagementController::class, 'show']);
+
 
 });
 
