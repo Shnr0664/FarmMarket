@@ -27,7 +27,7 @@ class StoreProductRequest extends FormRequest
             'product_category' => 'sometimes|string|in:Fruit,Vegetable,Grain',
             'product_desc' => 'sometimes|string',
             'product_price' => 'sometimes|numeric|min:0',
-            'product_img' => 'sometimes|string'
+            'product_img' => 'sometimes|longText'
         ];
     }
 }

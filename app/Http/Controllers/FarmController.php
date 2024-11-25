@@ -34,13 +34,11 @@ class FarmController extends Controller
     {
         $validated = $request->validated();
         $validated['farmer_id'] = auth()->user()->farmer->id;
-
         $farm = Farm::create($validated);
 
         return $this->success(
             ['farm' => $farm->load('products')],
-            'Farm created successfully',
-            201
+            'Farm created successfully'
         );
     }
 
@@ -69,6 +67,9 @@ class FarmController extends Controller
      */
     public function update(UpdateFarmRequest $request, Farm $farm)
     {
+        if ($farm->farmer_id !== auth()->user()->farmer->id) {
+            return $this->error('Unauthorized', 403);
+        }
         $farm->update($request->validated());
 
         return $this->success(

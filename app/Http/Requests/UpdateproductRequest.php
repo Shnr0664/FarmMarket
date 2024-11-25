@@ -28,7 +28,7 @@ class UpdateproductRequest extends FormRequest
             'product_category' => 'required|string|in:Fruit,Vegetable,Grain',
             'product_desc' => 'required|string',
             'product_price' => 'required|numeric|min:0',
-            'product_img' => 'required|string'
+            'product_img' => 'required|longText'
         ];
     }
 }

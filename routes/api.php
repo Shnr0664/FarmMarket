@@ -70,9 +70,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/orders', [OrderController::class, 'listOrders']);
 
 
-    Route::post('/farms', [FarmController::class, 'store']);
-    Route::post('/farms/{farm}/update', [FarmController::class, 'update']);
-    Route::post('/farms/{farm}/delete', [FarmController::class, 'destroy']);
+    Route::post('/farms', [FarmController::class, 'store']); // Create farm
+    Route::put('/farms/{farm}', [FarmController::class, 'update']); // Update farm
+    Route::delete('/farms/{farm}', [FarmController::class, 'destroy']); // Delete farm
 
     Route::post('/farms/{farm}/products', [ProductController::class, 'store']);
     Route::post('/products/{product}/update', [ProductController::class, 'update']);
@@ -84,6 +84,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/farms', [FarmManagementController::class, 'index']);
     Route::get('/farms/{farm}', [FarmManagementController::class, 'show']);
 
+    Route::get('/farms/{farm}/products', [ProductController::class, 'getProductsByFarm']);
+    Route::get('/farmer/products', [ProductController::class, 'getProductsByFarmer']);
+    Route::post('/products/add', [ProductController::class, 'store']);
+    Route::put('/products/{product}/update', [ProductController::class, 'update']);
 
 });
 

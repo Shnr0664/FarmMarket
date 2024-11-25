@@ -105,6 +105,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request, $farmId)
     {
+        // Ensure the farm exists and belongs to the authenticated farmer
         $farm = Farm::find($farmId);
 
         if (!$farm || $farm->farmer_id !== auth()->user()->farmer->id) {
@@ -114,11 +115,21 @@ class ProductController extends Controller
             ], 403);
         }
 
+        // Validate the request
         $validated = $request->validated();
+
+        // If no product image is provided, generate one using DiceBear
+        if (empty($validated['product_img'])) {
+            $productNameSlug = urlencode($validated['name']);
+            $validated['product_img'] = "https://api.dicebear.com/9.x/glass/svg/?seed={$productNameSlug}";
+        }
+
+        // Assign the farm ID to the product
         $validated['farm_id'] = $farm->id;
+
+        // Create the product
         $product = Product::create($validated);
 
-        // return $this->success(['product' => $product], 'Product created successfully');
         return response()->json([
             'status' => 'success',
             'message' => 'Product created successfully',
@@ -127,6 +138,7 @@ class ProductController extends Controller
             ],
         ]);
     }
+
 
     /**
      * Display the specified resource.
@@ -215,4 +227,18 @@ class ProductController extends Controller
             'message' => 'Product deleted successfully',
         ]);
     }
+
+    public function getProductsByFarm(Farm $farm)
+    {
+        $products = $farm->products;
+        return $this->success(['products' => $products]);
+    }
+
+    public function getProductsByFarmer()
+    {
+        $farmer = auth()->user()->farmer;
+        $products = $farmer->products;
+        return $this->success(['products' => $products]);
+    }
+
 }
