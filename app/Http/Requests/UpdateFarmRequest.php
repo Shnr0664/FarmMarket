@@ -16,8 +16,9 @@ class UpdateFarmRequest extends FormRequest
         return [
             'farm_name' => 'sometimes|string|max:255',
             'farm_size' => 'sometimes|numeric|min:0',
-            'crops_types' => 'sometimes|array',
-            'crops_types.*' => 'string'
+            'location' => 'sometimes|string|max:255',
+            // 'crops_types' => 'sometimes|array',
+            // 'crops_types.*' => 'string'
         ];
     }
 }

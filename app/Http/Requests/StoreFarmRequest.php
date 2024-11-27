@@ -18,8 +18,9 @@ class StoreFarmRequest extends FormRequest
         return [
             'farm_name' => 'required|string|max:255|unique:farms,farm_name',
             'farm_size' => 'required|numeric|min:0',
-            'crops_types' => 'required|array',
-            'crops_types.*' => 'string',
+            'location' => 'required|string|max:255',
+            // 'crops_types' => 'required|array',
+            // 'crops_types.*' => 'string',
         ];
     }
 
