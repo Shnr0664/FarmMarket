@@ -16,12 +16,12 @@ class Farm extends Model
         'farmer_id',
         'farm_name',
         'farm_size',
-        'crops_types',
+        'location',
     ];
 
     protected $casts = [
         'farm_size' => 'decimal:2',
-        'crops_types' => 'array', // Assuming crops_types might be stored as JSON.
+        // 'crops_types' => 'array', // Assuming crops_types might be stored as JSON.
     ];
 
     // Inverse of One-to-Many relationship

@@ -120,7 +120,7 @@ class ProductController extends Controller
 
         // If no product image is provided, generate one using DiceBear
         if (empty($validated['product_img'])) {
-            $productNameSlug = urlencode($validated['name']);
+            $productNameSlug = urlencode($validated['product_name']);
             $validated['product_img'] = "https://api.dicebear.com/9.x/glass/svg/?seed={$productNameSlug}";
         }
 
@@ -231,14 +231,26 @@ class ProductController extends Controller
     public function getProductsByFarm(Farm $farm)
     {
         $products = $farm->products;
-        return $this->success(['products' => $products]);
+        // return $this->success(['products' => $products]);
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'products' => $products,
+            ],
+        ]);
     }
 
     public function getProductsByFarmer()
     {
         $farmer = auth()->user()->farmer;
         $products = $farmer->products;
-        return $this->success(['products' => $products]);
+        // return $this->success(['products' => $products]);
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'products' => $products,
+            ],
+        ]);
     }
 
 }

@@ -30,8 +30,9 @@ class FarmFactory extends Factory
         return [
             'farmer_id' => Farmer::factory(),
             'farm_name' => $this->faker->company,
+            'location' => $this->faker->address,
             'farm_size' => $this->faker->randomFloat(2, 1, 100), // Random size in acres
-            'crops_types' => json_encode($this->faker->randomElement($cropTypes)), // Randomly select a crop type
+            // 'crops_types' => json_encode($this->faker->randomElement($cropTypes)), // Randomly select a crop type
         ];
     }
 }
