@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('farmer_id');
             $table->string('farm_name');
+            $table->string('location');
             $table->decimal('farm_size', 10, 2);
-            $table->json('crops_types')->nullable();;
+            // $table->json('size')->nullable();
 
             $table->foreign('farmer_id')->references('id')->on('farmers')
                 ->onDelete('cascade')->onUpdate('cascade');
