@@ -10,6 +10,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FarmManagementController;
+use App\Http\Controllers\SalesReportController;
+
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -81,10 +83,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/farmer/products', [ProductController::class, 'getProductsByFarmer']);
     Route::post('/products/add', [ProductController::class, 'store']);
     Route::put('/products/{product}/update', [ProductController::class, 'update']);
-
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('farmers/{farmer}/approve', [FarmerController::class, 'approve']);
     Route::post('farmers/{farmer}/reject', [FarmerController::class, 'reject']);
+});
+
+//add , 'role:farmer'] after testing
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Route to generate sales report
+    Route::get('/sales-reports', [SalesReportController::class, 'fetchSalesData']);
+
+    // Route to download sales report as PDF
+    Route::get('/sales-reports/pdf', [SalesReportController::class, 'generatePdfReport']);
+
+    // Route to download sales report as CSV
+    Route::get('/sales-reports/csv', [SalesReportController::class, 'generateCsvReport']);
+
 });
