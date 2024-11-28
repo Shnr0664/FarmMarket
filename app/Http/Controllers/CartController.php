@@ -9,6 +9,8 @@ use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Notifications\LowStockNotification;
+use App\Notifications\NoStockNotification;
 
 class CartController extends Controller
 {
@@ -30,7 +32,7 @@ class CartController extends Controller
         // Retrieve the authenticated user's ID (skip buyer_id in request)
         $userId = $request->user()->id;
         $buyerId = Buyer::where('user_id', $userId)->first()->id;
-//        dd ($buyerId);
+        //        dd ($buyerId);
 
         // Fetch product and calculate total for the current addition
         $product = Product::findOrFail($validated['product_id']);
@@ -58,6 +60,26 @@ class CartController extends Controller
         }
         // Reduce product stock
         $product->update(['product_quantity' => $product->product_quantity - $validated['quantity']]);
+
+        // Notify farmer if stock is low or out of stock
+        if ($product->product_quantity > 0 && $product->product_quantity <= 10) {
+            if ($product->farm && $product->farm->farmer && $product->farm->farmer->user) {
+                $farmer = $product->farm->farmer;
+                $farmer->user->notify(new LowStockNotification($product));
+            } else {
+                \Log::warning('Low stock notification: Farm or farmer is missing for product ID: ' . $product->id);
+            }
+        }
+
+        if ($product->product_quantity == 0) {
+            if ($product->farm->farmer && $product->farm->farmer->user) {
+                $farmer = $product->farm->farmer;
+                $farmer->user->notify(new NoStockNotification($product));
+            } else {
+                \Log::warning('No stock notification: Farmer is missing for product ID: ' . $product->id);
+            }
+        }
+
 
         return response()->json([
             'status' => 'success',
@@ -148,9 +170,9 @@ class CartController extends Controller
             // Update the cart entry
             $cart_test
                 ->update([
-                'quantity' => $newQuantity,
-                'total_amount' => $newQuantity * $product->product_price,
-            ]);
+                    'quantity' => $newQuantity,
+                    'total_amount' => $newQuantity * $product->product_price,
+                ]);
         } else {
             // Remove the product from the cart if quantity reaches zero
             $cart_test
