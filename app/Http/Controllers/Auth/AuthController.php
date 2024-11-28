@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\PasswordResetCodeNotification;
+use App\Notifications\PasswordChangedNotification;
+use Illuminate\Support\Facades\DB;
+
+
 
 class AuthController extends Controller
 {
@@ -141,4 +146,71 @@ class AuthController extends Controller
             return $e;
         }
     }
+
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $email = $request->email;
+
+        DB::table('password_resets')->where('email', $email)->delete();
+
+        $code = rand(100000, 999999); // Generate a 6-digit code
+
+        // Store the code in the database
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $email],
+            [
+                'code' => $code,
+                'created_at' => now(),
+                'expires_at' => now()->addMinutes(10), // Code valid for 10 minutes
+            ]
+        );
+
+        // Send the code to the user
+        $user = User::where('email', $email)->first();
+        $user->notify(new PasswordResetCodeNotification($code));
+
+        return response()->json(['message' => 'Password reset code sent.']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'code' => 'required|digits:6',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $reset = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('code', $request->code)
+            ->first();
+
+        if (!$reset) {
+            return response()->json(['message' => 'Invalid reset code.'], 400);
+        }
+
+        if (now()->greaterThan($reset->expires_at)) {
+            return response()->json(['message' => 'Reset code has expired.'], 400);
+        }
+
+        // Update the user's password
+        $user = User::where('email', $request->email)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        // Delete the reset record
+        DB::table('password_resets')->where('email', $request->email)->delete();
+
+        // Notify the user
+        $user->notify(new PasswordChangedNotification());
+
+
+        return response()->json(['message' => 'Password reset successfully.']);
+    }
+
 }

@@ -37,6 +37,13 @@ Route::post('/email/resend-code', [VerificationController::class, 'resend'])->mi
 // Verify Email with Code
 Route::post('/email/verify-code', [VerificationController::class, 'verify']);
 
+//forgot password: sends code to email
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
+
+// resets password
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+
 // Protected routes
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('users', [UserController::class, 'index']);
