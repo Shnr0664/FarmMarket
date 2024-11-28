@@ -8,6 +8,8 @@ use App\Models\Buyer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Models\OrderItem;
+
 
 class OrderController extends Controller
 {
@@ -62,6 +64,7 @@ class OrderController extends Controller
         // Calculate total amount
         $totalAmount = $cartItems->sum('total_amount');
 
+        DB::beginTransaction();
         try {
             // Create the order
             $order = Order::create([
@@ -70,13 +73,25 @@ class OrderController extends Controller
                 'total_amount' => $totalAmount,
                 'order_status' => 'Pending', // Initial status
             ]);
+            // Insert order items into the order_items table
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->product_price,
+                    'total' => $item->total_amount
 
+
+                ]);
+            }
             // Clear the cart for the buyer
             foreach ($cartItems as $item) {
                 Cart::where('buyer_id', $item->buyer_id)
                     ->where('product_id', $item->product_id)
                     ->delete();
             }
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
@@ -86,11 +101,13 @@ class OrderController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create order',
                 'error' => $e->getMessage(),
             ], 500);
+
         }
     }
 
@@ -167,18 +184,43 @@ class OrderController extends Controller
                 'message' => 'Order is already cancelled',
             ], 400);
         }
+        DB::beginTransaction();
 
-        // Update the order status and order date
-        $order->update([
-            'order_status' => 'Cancelled',
-            'order_date' => now(),
-        ]);
+        try {
+            // Restore product stock for each item in the order
+            foreach ($order->items as $item) {
+                $product = $item->product;
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Order cancelled successfully',
-            'order' => $order,
-        ]);
+                if ($product) {
+                    // Restore stock
+                    $product->update([
+                        'product_quantity' => $product->product_quantity + $item->quantity,
+                    ]);
+                }
+            }
+
+            // Update the order status to 'Cancelled'
+            $order->update([
+                'order_status' => 'Cancelled',
+                'order_date' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order cancelled successfully, and stock restored.',
+                'order' => $order,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to cancel order and restore stock.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function completeOrder(Request $request, $orderId): JsonResponse

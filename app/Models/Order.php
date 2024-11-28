@@ -46,4 +46,15 @@ class Order extends Model
     {
         return $this->hasOne(Delivery::class, 'order_id');
     }
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'order_items')
+            ->withPivot('quantity', 'price', 'total')
+            ->withTimestamps();
+    }
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
 }

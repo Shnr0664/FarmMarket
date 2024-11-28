@@ -30,10 +30,22 @@ class Product extends Model
     {
         return $this->hasMany(Cart::class, 'product_id');
     }
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
     // Inverse of One-to-Many relationship
     public function farm()
     {
         return $this->belongsTo(Farm::class, 'farm_id');
     }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_items')
+            ->withPivot('quantity', 'price', 'total')
+            ->withTimestamps();
+    }
+
 }
