@@ -98,12 +98,22 @@ class CartController extends Controller
 
         // Transform the cart data to match the expected structure
         $cartItems = $cart->map(function ($item) {
+            // Load the product details
+            $product = $item->product;
+
+            // Access the farmer's information via the product's farm
+            $farmer = $product->farm->farmer;  // Access the farmer associated with the product's farm
+            $farmerUser = $farmer->user; // Access the user associated with the farmer
+
             return [
-                'id' => $item->product_id,
-                'name' => $item->product->product_name,
-                'image' => $item->product->product_img, // Assuming the product has an `image` property
-                'price' => (float) $item->product->product_price, // Assuming the product has a `price` property
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'image' => $product->product_img, // Assuming the product has an `image` property
+                'price' => (float) $product->product_price, // Assuming the product has a `price` property
                 'quantity' => $item->quantity,
+                'farmer_id' => $farmer->id, // Correctly accessing the farmer's ID
+                'farmer_name' => $farmerUser->personalInfo->name, // Correctly accessing the farmer's name
+                'farmer_profile_pic' => $farmerUser->profile_pic, // Correctly accessing the farmer's profile pic
             ];
         });
 
