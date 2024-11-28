@@ -38,7 +38,7 @@ Route::post('/email/resend-code', [VerificationController::class, 'resend'])->mi
 Route::post('/email/verify-code', [VerificationController::class, 'verify']);
 
 // Protected routes
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('users', [UserController::class, 'index']);
     Route::get('user', [UserController::class, 'show']);
     Route::put('users/{user}/personal-info', [UserController::class, 'updatePersonalInfo']);
