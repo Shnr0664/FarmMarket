@@ -9,6 +9,13 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    public const HOME = '/api/email/verified-success'; // Custom API redirect
+
+    protected function redirectTo()
+    {
+        return self::HOME;
+    }
+
     public function register(): void
     {
         //

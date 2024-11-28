@@ -57,7 +57,10 @@ class AuthController extends Controller
             $user->farmer()->create();
         }
 
-        $user->sendEmailVerificationNotification();
+        // Generate and send verification code
+        $user->generateVerificationCode();
+        $user->notify(new \App\Notifications\SendVerificationCode($user->email_verification_code));
+
 
         return response()->json([
             'status' => 'success',
