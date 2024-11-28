@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Notifications\SendVerificationCode;
+use App\Notifications\EmailVerifiedNotification;
+
 
 class VerificationController extends Controller
 {
@@ -54,6 +56,10 @@ class VerificationController extends Controller
         // Mark email as verified
         $user->markEmailAsVerified();
         $user->clearVerificationCode();
+
+        //if ($user->role === 'buyer') {
+        $user->notify(new EmailVerifiedNotification());
+        //}
 
         return response()->json(['message' => 'Email verified successfully.']);
     }

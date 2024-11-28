@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Farmer;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Notifications\FarmerApprovedNotification;
 
 class FarmerController extends Controller
 {
@@ -15,8 +16,7 @@ class FarmerController extends Controller
         if ($request->user()->isAdmin()) {
             $farmers = Farmer::with(['user.personalInfo'])->get();
             return $this->success(['farmers' => $farmers]);
-        }
-        else {
+        } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized',
@@ -35,12 +35,13 @@ class FarmerController extends Controller
         if ($request->user()->isAdmin()) {
             $farmer->IsApproved = true;
             $farmer->save();
+            // Notify the farmer
+            $farmer->user->notify(new FarmerApprovedNotification());
 
             return $this->success([
                 'farmer' => $farmer
             ], 'Farmer approved successfully');
-        }
-        else {
+        } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized',
@@ -57,8 +58,7 @@ class FarmerController extends Controller
             return $this->success([
                 'farmer' => $farmer
             ], 'Farmer disapproved successfully');
-        }
-        else {
+        } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized',
