@@ -29,6 +29,10 @@ class ProductController extends Controller
                     'category' => $category,
                     'image' => $product->product_img,
                     'price' => $product->product_price,
+                    'farmer' => [
+                        'id' => $product->farm->farmer->id,    // Farmer's ID
+                        'name' => $product->farm->farmer->name, // Farmer's name
+                    ],
                 ];
             });
         })->values();
