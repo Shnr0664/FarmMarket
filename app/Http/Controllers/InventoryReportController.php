@@ -20,7 +20,15 @@ class InventoryReportController extends Controller
                 'end_date' => 'required|date|after_or_equal:start_date',
             ]);
 
-            $reportData = $this->fetchReportData($validated);
+            $farmer = $request->user()->farmer;
+            if (!$farmer) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Access denied. Only farmers can access inventory reports.',
+                ], 403);
+            }
+            $reportData = $this->fetchReportData($validated, $farmer->id);
+
             $formattedData = $reportData->map(function ($item) {
                 return [
                     'product_name' => $item->product_name,
@@ -40,14 +48,12 @@ class InventoryReportController extends Controller
                 'data' => $formattedData,
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Return 400 Bad Request for validation errors
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 400);
         } catch (\Exception $e) {
-            // Return 500 Internal Server Error for server-side issues
             \Log::error('Failed to fetch inventory report data', [
                 'error' => $e->getMessage(),
                 'start_date' => $request->get('start_date', 'N/A'),
@@ -72,21 +78,21 @@ class InventoryReportController extends Controller
                 'end_date' => 'required|date|after_or_equal:start_date',
             ]);
 
-            $reportData = $this->fetchReportData($validated);
+            $farmerId = $request->user()->farmer->id; // Fetch the authenticated farmer's ID
+
+            $reportData = $this->fetchReportData($validated, $farmerId);
 
             $pdf = Pdf::loadView('reports.inventory', ['reportData' => $reportData]);
 
             return $pdf->download('inventory_report.pdf');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Return 400 Bad Request for validation errors
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 400);
         } catch (\Exception $e) {
-            // Return 500 Internal Server Error for server-side issues
-            \Log::error('Failed to fetch inventory report data', [
+            \Log::error('Failed to generate PDF inventory report', [
                 'error' => $e->getMessage(),
                 'start_date' => $request->get('start_date', 'N/A'),
                 'end_date' => $request->get('end_date', 'N/A'),
@@ -94,7 +100,7 @@ class InventoryReportController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch inventory report data. Please try again later.',
+                'message' => 'Failed to generate the PDF inventory report. Please try again later.',
             ], 500);
         }
     }
@@ -110,7 +116,9 @@ class InventoryReportController extends Controller
                 'end_date' => 'required|date|after_or_equal:start_date',
             ]);
 
-            $reportData = $this->fetchReportData($validated);
+            $farmerId = $request->user()->farmer->id; // Fetch the authenticated farmer's ID
+
+            $reportData = $this->fetchReportData($validated, $farmerId);
 
             $response = new StreamedResponse(function () use ($reportData) {
                 $handle = fopen('php://output', 'w');
@@ -137,15 +145,13 @@ class InventoryReportController extends Controller
 
             return $response;
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Return 400 Bad Request for validation errors
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 400);
         } catch (\Exception $e) {
-            // Return 500 Internal Server Error for server-side issues
-            \Log::error('Failed to fetch inventory report data', [
+            \Log::error('Failed to generate CSV inventory report', [
                 'error' => $e->getMessage(),
                 'start_date' => $request->get('start_date', 'N/A'),
                 'end_date' => $request->get('end_date', 'N/A'),
@@ -153,7 +159,7 @@ class InventoryReportController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch inventory report data. Please try again later.',
+                'message' => 'Failed to generate the CSV inventory report. Please try again later.',
             ], 500);
         }
     }
@@ -161,29 +167,32 @@ class InventoryReportController extends Controller
     /**
      * Fetch inventory report data.
      */
-    private function fetchReportData(array $filters)
+    private function fetchReportData(array $filters, int $farmerId)
     {
         $startDate = $filters['start_date'];
         $endDate = $filters['end_date'];
 
-        // Query to fetch inventory data
         return DB::table('products')
+            ->leftJoin('farms', 'products.farm_id', '=', 'farms.id')
+            ->leftJoin('farmers', 'farms.farmer_id', '=', 'farmers.id')
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
             ->selectRaw('
-                products.product_name,
-                products.product_quantity AS stock_level,
-                COALESCE(SUM(CASE WHEN orders.order_status = \'Completed\' THEN order_items.quantity ELSE 0 END), 0) AS total_sold,
-                COALESCE(SUM(CASE WHEN orders.order_status = \'Pending\' THEN order_items.quantity ELSE 0 END), 0) AS pending_quantity,
-                COALESCE(SUM(CASE WHEN orders.order_status = \'Processing\' THEN order_items.quantity ELSE 0 END), 0) AS processing_quantity,
-                COALESCE(SUM(CASE WHEN orders.order_status = \'Cancelled\' THEN order_items.quantity ELSE 0 END), 0) AS cancelled_quantity,
-                CASE
-                    WHEN products.product_quantity <= 10 THEN \'Low Stock\'
-                    ELSE \'Sufficient Stock\'
-                END AS restocking_alert
-            ')
+        products.product_name,
+        products.product_quantity AS stock_level,
+        COALESCE(SUM(CASE WHEN orders.order_status = \'Completed\' THEN order_items.quantity ELSE 0 END), 0) AS total_sold,
+        COALESCE(SUM(CASE WHEN orders.order_status = \'Pending\' THEN order_items.quantity ELSE 0 END), 0) AS pending_quantity,
+        COALESCE(SUM(CASE WHEN orders.order_status = \'Processing\' THEN order_items.quantity ELSE 0 END), 0) AS processing_quantity,
+        COALESCE(SUM(CASE WHEN orders.order_status = \'Cancelled\' THEN order_items.quantity ELSE 0 END), 0) AS cancelled_quantity,
+        CASE
+            WHEN products.product_quantity <= 10 THEN \'Low Stock\'
+            ELSE \'Sufficient Stock\'
+        END AS restocking_alert
+    ')
+            ->where('farmers.id', $farmerId)
             ->whereBetween('orders.order_date', [$startDate, $endDate])
-            ->groupBy('products.id')
+            ->groupBy('products.id', 'products.product_name', 'products.product_quantity')
             ->get();
+
     }
 }

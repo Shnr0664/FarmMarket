@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FarmManagementController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\InventoryReportController;
+use App\Http\Controllers\BuyerReportController;
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Mail;
@@ -107,4 +108,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('inventory-reports/pdf', [InventoryReportController::class, 'generatePdfReport']);
     Route::get('inventory-reports/csv', [InventoryReportController::class, 'generateCsvReport']);
 
+});
+//add , 'role:buyer'] after testing
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/buyer-reports', [BuyerReportController::class, 'fetchBuyerData']);
+    Route::get('/buyer-reports/pdf', [BuyerReportController::class, 'generatePdfReport']);
+    Route::get('/buyer-reports/csv', [BuyerReportController::class, 'generateCsvReport']);
 });
