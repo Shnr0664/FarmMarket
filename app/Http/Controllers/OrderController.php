@@ -71,7 +71,7 @@ class OrderController extends Controller
                 'buyer_id' => $buyer->id,
                 'order_date' => now(), // Set order date as current date/time
                 'total_amount' => $totalAmount,
-                'order_status' => 'Pending', // Initial status
+                'order_status' => 'Processing', // Initial status
             ]);
             // Insert order items into the order_items table
             foreach ($cartItems as $item) {
@@ -97,7 +97,7 @@ class OrderController extends Controller
                 'status' => 'success',
                 'message' => 'Order created successfully',
                 'total_amount' => $totalAmount,
-                'order_status' => 'Pending',
+                'order_status' => 'Processing',
             ], 201);
 
         } catch (\Exception $e) {

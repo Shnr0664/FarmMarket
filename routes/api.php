@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 
 
 
+use App\Http\Controllers\ChatController;
 
 // Public routes
 
@@ -85,6 +86,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/farmer/products', [ProductController::class, 'getProductsByFarmer']);
     Route::post('/products/add', [ProductController::class, 'store']);
     Route::put('/products/{product}/update', [ProductController::class, 'update']);
+    // Send a message
+    Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+    // Get chat messages between authenticated user and a specific user (farmer)
+    Route::get('/chat/{userId}', [ChatController::class, 'getMessages']);
+    // Clear messages older than 24 hours
+    Route::post('/chat/clear', [ChatController::class, 'clearMessages']);
+    // Get all chats
+    Route::get('/chats', [ChatController::class, 'getAllChats']);
+
+    // Buyers submit offers
+    Route::post('/offers', [OfferController::class, 'submitOffer']);
+
+    // Farmers respond to offers
+    Route::post('/offers/{offerId}/respond', [OfferController::class, 'respondToOffer']);
+
+    // Get offers for buyer or farmer
+    Route::get('/offers', [OfferController::class, 'getOffers']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
