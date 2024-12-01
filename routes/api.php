@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FarmManagementController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\InventoryReportController;
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Mail;
@@ -100,5 +101,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Route to download sales report as CSV
     Route::get('/sales-reports/csv', [SalesReportController::class, 'generateCsvReport']);
+
+    // Route to generate inventory report, pdf, csv
+    Route::get('inventory-reports', [InventoryReportController::class, 'fetchInventoryData']);
+    Route::get('inventory-reports/pdf', [InventoryReportController::class, 'generatePdfReport']);
+    Route::get('inventory-reports/csv', [InventoryReportController::class, 'generateCsvReport']);
 
 });

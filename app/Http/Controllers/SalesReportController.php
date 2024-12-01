@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+
+
 
 class SalesReportController extends Controller
 {
@@ -14,33 +18,56 @@ class SalesReportController extends Controller
      */
     public function fetchSalesData(Request $request)
     {
-        $validated = $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'report_type' => 'required|in:daily,weekly,monthly',
-        ]);
+        try {
+            $validated = $request->validate([
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'report_type' => 'required|in:daily,weekly,monthly',
+            ]);
 
-        $reportData = $this->fetchReportData($validated);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'sales_summary' => $reportData['sales_summary']->map(function ($item) {
-                    return [
-                        'period' => $item->period,
-                        'total_revenue' => number_format($item->total_revenue, 2), // Format revenue
-                        'total_orders' => $item->total_orders,
-                    ];
-                }),
-                'product_popularity' => $reportData['product_popularity']->map(function ($item) {
-                    return [
-                        'product_name' => $item->product_name,
-                        'total_sold' => $item->total_sold,
-                        'total_revenue' => number_format($item->total_revenue, 2), // Format revenue
-                    ];
-                }),
-            ],
-        ]);
+
+            $reportData = $this->fetchReportData($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'sales_summary' => $reportData['sales_summary']->map(function ($item) {
+                        return [
+                            'period' => $item->period,
+                            'total_revenue' => number_format($item->total_revenue, 2), // Format revenue
+                            'total_orders' => $item->total_orders,
+                        ];
+                    }),
+                    'product_popularity' => $reportData['product_popularity']->map(function ($item) {
+                        return [
+                            'product_name' => $item->product_name,
+                            'total_sold' => $item->total_sold,
+                            'total_revenue' => number_format($item->total_revenue, 2), // Format revenue
+                        ];
+                    }),
+                ],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid input values.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch sales report data', [
+                'error' => $e->getMessage(),
+                'start_date' => $request->get('start_date', 'N/A'),
+                'end_date' => $request->get('end_date', 'N/A'),
+                'report_type' => $request->get('report_type', 'N/A'),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch sales report data. Please check your inputs and try again.',
+            ], 500);
+
+        }
     }
 
     /**
@@ -48,16 +75,37 @@ class SalesReportController extends Controller
      */
     public function generatePdfReport(Request $request)
     {
-        $validated = $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'report_type' => 'required|in:daily,weekly,monthly',
-        ]);
+        try {
+            $validated = $request->validate([
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'report_type' => 'required|in:daily,weekly,monthly',
+            ]);
 
-        $reportData = $this->fetchReportData($validated);
+            $reportData = $this->fetchReportData($validated);
 
-        $pdf = Pdf::loadView('reports.sales', compact('reportData'));
-        return $pdf->download('sales_report.pdf');
+            $pdf = Pdf::loadView('reports.sales', compact('reportData'));
+            return $pdf->download('sales_report.pdf');
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid input values.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to generate PDF report', [
+                'error' => $e->getMessage(),
+                'start_date' => $request->get('start_date', 'N/A'),
+                'end_date' => $request->get('end_date', 'N/A'),
+                'report_type' => $request->get('report_type', 'N/A'),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to generate the PDF report. Please try again later.',
+            ], 500);
+        }
+
     }
 
     /**
@@ -65,37 +113,57 @@ class SalesReportController extends Controller
      */
     public function generateCsvReport(Request $request)
     {
-        $validated = $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'report_type' => 'required|in:daily,weekly,monthly',
-        ]);
+        try {
+            $validated = $request->validate([
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'report_type' => 'required|in:daily,weekly,monthly',
+            ]);
 
-        $reportData = $this->fetchReportData($validated);
+            $reportData = $this->fetchReportData($validated);
 
-        $response = new StreamedResponse(function () use ($reportData) {
-            $handle = fopen('php://output', 'w');
+            $response = new StreamedResponse(function () use ($reportData) {
+                $handle = fopen('php://output', 'w');
 
-            // Add headers for Sales Summary
-            fputcsv($handle, ['Period', 'Total Revenue', 'Total Orders']);
-            foreach ($reportData['sales_summary'] as $row) {
-                fputcsv($handle, [$row->period, $row->total_revenue, $row->total_orders]);
-            }
+                // Add headers for Sales Summary
+                fputcsv($handle, ['Period', 'Total Revenue', 'Total Orders']);
+                foreach ($reportData['sales_summary'] as $row) {
+                    fputcsv($handle, [$row->period, $row->total_revenue, $row->total_orders]);
+                }
 
-            // Add headers for Product Popularity
-            fputcsv($handle, []);
-            fputcsv($handle, ['Product Name', 'Total Sold', 'Total Revenue']);
-            foreach ($reportData['product_popularity'] as $product) {
-                fputcsv($handle, [$product->product_name, $product->total_sold, $product->total_revenue]);
-            }
+                // Add headers for Product Popularity
+                fputcsv($handle, []);
+                fputcsv($handle, ['Product Name', 'Total Sold', 'Total Revenue']);
+                foreach ($reportData['product_popularity'] as $product) {
+                    fputcsv($handle, [$product->product_name, $product->total_sold, $product->total_revenue]);
+                }
 
-            fclose($handle);
-        });
+                fclose($handle);
+            });
 
-        $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="sales_report.csv"');
+            $response->headers->set('Content-Type', 'text/csv');
+            $response->headers->set('Content-Disposition', 'attachment; filename="sales_report.csv"');
 
-        return $response;
+            return $response;
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid input values.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to generate CSV report', [
+                'error' => $e->getMessage(),
+                'start_date' => $request->get('start_date', 'N/A'),
+                'end_date' => $request->get('end_date', 'N/A'),
+                'report_type' => $request->get('report_type', 'N/A'),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to generate the CSV report. Please try again later.',
+            ], 500);
+        }
     }
 
     /**
