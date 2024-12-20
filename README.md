@@ -1,14 +1,15 @@
 # Farmer Market System Documentation
 # My contribution:
 Backend:
-- Buyer main #page: Advanced search and filtering for buyers.
+- Buyer main page: Advanced search and filtering for buyers.
 - Email notifications
 - Email verifications
 - Inventory tracking
 - Reports:
     - Buyer report avaliable as JSON, dowloadable PDF and CSV
     - Sales report avaliable as JSON, dowloadable PDF and CSV
-    - Farmer report avaliable as JSON, dowloadable PDF and CSV 
+    - Farmer report avaliable as JSON, dowloadable PDF and CSV
+      
 NOTE: This repository includes only backend of the project.
 
 ## Team D
