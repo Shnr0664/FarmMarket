@@ -1,66 +1,204 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Farmer Market System Documentation
+My contribution:
+- Buyer main page: Advanced search and filtering for buyers.
+- Email notifications
+- Email verifications
+- Inventory tracking
+- Reports:
+    - Buyer report avaliable as JSON, dowloadable PDF and CSV
+    - Sales report avaliable as JSON, dowloadable PDF and CSV
+    - Farmer report avaliable as JSON, dowloadable PDF and CSV 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
+## Team D
+1.Amina Alisheva
+2.Nurdana Razakhbergen
+3.Miras Shaltayev
+4.Shynaray Sagidullayeva
+5.Baglan Zhubatkanov
+6.Medgat Auken
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Project Overview](#project-overview)
+3. [Technology Stack](#technology-stack)
+4. [System Architecture](#system-architecture)
+5. [Features](#features)
+6. [Database Design](#database-design)
+7. [API Documentation](#api-documentation)
+8. [Frontend Design](#frontend-design)
+9. [Deployment Guide](#deployment-guide)
+10. [Branch Structure](#branch-structure)
+11. [Conclusion](#conclusion)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Introduction
 
-## Learning Laravel
+The Farmer Market System (FMS) is a platform designed to facilitate direct transactions between farmers and buyers, offering features like product listings, order management, payment processing, and delivery management. It includes a web application and a mobile application, sharing a unified backend.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Project Overview
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Purpose
+To connect farmers and buyers, enabling transparent, efficient, and direct sales of agricultural products.
 
-## Laravel Sponsors
+### Scope
+FMS enables:
+- **Farmers** to list, manage, and sell products.
+- **Buyers** to search, negotiate, and purchase products.
+- **Administrators** to oversee platform operations.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Objectives
+- Streamline agricultural e-commerce.
+- Ensure secure and scalable operations.
+- Enhance user experience with responsive interfaces.
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Technology Stack
 
-## Contributing
+### Backend
+- **Framework:** Laravel (PHP)
+- **Database:** Postgre (Relational Database)
+- **API:** RESTful architecture with OAuth 2.0 for security.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Frontend
+- **Web Application:** React.js for a dynamic, component-based UI.
+- **Mobile Application:** React Native for cross-platform development.
 
-## Code of Conduct
+### Tools and Integrations
+- **Notifications:** MailTrap.
+- **Hosting:** Ngrok.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## System Architecture
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Overview
+The system employs a microservices architecture for scalability. Components include:
+1. **Backend API:** Laravel-based services.
+2. **Web and Mobile Applications:** React.js and React Native.
+3. **Database Layer:** PostgreSQL.
 
-## License
+### UML Diagrams
+Include diagrams like:
+- **Use Case Diagram**
+- **Activity Diagram**
+- **Class Diagram**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Features
+
+### Core Features
+1. **User Registration and Authentication**
+    - Role-based access (Farmer, Buyer, Admin).
+    - Secure login with multi-factor authentication.
+
+2. **Farm Management**
+    - Profile and farm details management.
+    - Inventory tracking.
+
+3. **Product Management**
+    - Create, update, delete product listings.
+    - Advanced search and filtering for buyers.
+
+4. **Order Management**
+    - Add to cart, place orders, and track delivery.
+    - Built-in chat for price negotiation.
+
+---
+
+## Database Design
+
+### Entity-Relationship Diagram (ERD)
+The core entities are:
+- **User**: Represents buyers, farmers, and admins.
+- **Farm**: Managed by farmers.
+- **Product**: Agricultural items listed for sale.
+- **Order**: Tracks transactions between buyers and farmers.
+- **Payment**: Records financial transactions.
+- **Delivery**: Monitors product shipping.
+
+### Schema Design
+- Relationships are normalized.
+- Keys and constraints ensure data integrity.
+
+---
+
+## API Documentation
+
+### Authentication
+- **Endpoint:** `POST /api/login`
+- **Description:** Authenticates a user.
+- **Parameters:** `email`, `password`
+
+### Product Management
+- **Endpoint:** `POST /api/products`
+- **Description:** Create a new product.
+- **Parameters:** `name`, `category`, `price`, `quantity`, `description`
+
+### Order Tracking
+- **Endpoint:** `GET /api/orders/:id`
+- **Description:** Fetch order details.
+- **Parameters:** `orderId`
+
+
+---
+
+## Frontend Design
+
+### Web Application
+- **Framework:** React.js
+- **Components:**
+    - `Navbar`
+    - `ProductCard`
+    - `OrderHistory`
+
+### Mobile Application
+- **Framework:** React Native
+- **Features:**
+    - Real-time notifications.
+    - Optimized for iOS and Android.
+
+---
+
+## Deployment Guide
+
+### Prerequisites
+- **Server Requirements:** Node.js, PHP 8.0, MySQL.
+- **Tools:** Docker, Git.
+
+### Steps
+1. **Backend Deployment**
+    - Clone the repository.
+    - Run `composer install`.
+    - Configure `.env` file and migrate database.
+
+2. **Frontend Deployment**
+    - Run `npm install`.
+    - Build with `npm run build`.
+    - Deploy to hosting platform.
+
+
+---
+
+## Branch Structure
+
+### Main Branch
+- Contains the **frontend** application.
+- Includes all React.js components for the web interface.
+
+### New_Branch
+- Contains the **backend** application.
+- Includes Laravel services, database migrations, and API endpoints.
+
+---
+
+## Conclusion
+
+The Farmer Market System is a robust, user-centric platform designed to streamline agricultural transactions. With its modern architecture, intuitive UI, and powerful features, it stands poised to revolutionize e-commerce for the agricultural sector. By utilizing a clear branch structure, development and maintenance are simplified, ensuring continuous and seamless improvements. 
+
+---
